@@ -12,5 +12,8 @@
             "name": "Benjamin Zaslavsky",
             "email": "benjamin.zaslavsky@gmail.com"
         }
-    ]
+    ],
+  "require": {
+    "ext-pdo": "*"
+  }
 }

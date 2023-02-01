@@ -22,6 +22,11 @@ class Config
                 '/posts',
             ),
             new Route(
+                'post_new',
+                '/posts/new',
+                methods: ['GET', 'POST']
+            ),
+            new Route(
                 'post_show',
                 '/posts/{slug}',
                 requirements: ['slug' => '\w+']
@@ -33,6 +38,18 @@ class Config
     {
         return [
             '_contextTitle' => 'Test OOP',
+        ];
+    }
+
+    public static function getDbConfig(): array
+    {
+        return [
+            'platform' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => '3306',
+            'user' => 'admin',
+            'password' => 'admin',
+            'dbName' => 'test_oop',
         ];
     }
 }

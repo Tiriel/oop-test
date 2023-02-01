@@ -3,8 +3,8 @@
 namespace App\Templating;
 
 use App\Routing\PathUtils;
-use App\Templating\Views\AbstractView;
-use App\Templating\Views\BaseView;
+use App\Templating\Views\Core\AbstractView;
+use App\Templating\Views\Core\BaseView;
 
 class Templater
 {
@@ -28,7 +28,7 @@ class Templater
         return $this->parser((new $class($this->parser(...), $context))->render(), $context);
     }
 
-    public function parser($buffer, $context): string
+    public function parser($buffer, $context): string|array
     {
         return preg_replace_callback(
             '#{{ (\w+) }}#',

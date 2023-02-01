@@ -8,7 +8,9 @@ class MainController extends BaseController
 {
     public function index(): Response
     {
-        return $this->render('main_index');
+        $lastPost = $this->query->findOneBy([], ['DESC', 'id']) ?? '';
+
+        return $this->render('main_index', ['post' => $lastPost]);
     }
 
     public function contact(): Response

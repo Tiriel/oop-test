@@ -25,7 +25,11 @@ class Blog
         /** @var Route $route */
         $route = $router->route($request);
         if ('' === $controller = $route->getController()) {
-            return new Response('', 404);
+            return match ($route->getName()) {
+                'main_not_found' => new Response('', 404),
+                'main_bad_method' => new Response('', 405),
+                default => new Response('', 500)
+            };
         }
 
         $controller = $this->container->getController($controller);

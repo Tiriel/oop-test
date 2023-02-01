@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Templating\Views;
+namespace App\Templating\Views\Core;
 
 abstract class AbstractView
 {

@@ -2,6 +2,8 @@
 
 namespace App\Templating\Views;
 
+use App\Templating\Views\Core\BaseView;
+
 class MainContactView extends BaseView
 {
     protected function doGetContext(): array

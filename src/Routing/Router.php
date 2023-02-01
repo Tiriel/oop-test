@@ -17,6 +17,9 @@ class Router
             if (!$this->match($request, $route)) {
                 continue;
             }
+            //if (!\in_array($request->getMethod(), $route->getMethods() ?? ['GET'])) {
+            //    return new Route('main_bad_method', '');
+            //}
 
             return $route;
         }
@@ -47,7 +50,7 @@ class Router
             function ($matches) use ($requirements) {
                 $req = $requirements[$matches[1]] ?? '.*';
 
-                return "(?<{$matches[1]}>{$req}";
+                return "(?<{$matches[1]}>{$req})";
             },
             $regex
         );
