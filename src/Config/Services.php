@@ -2,6 +2,7 @@
 
 namespace App\Config;
 
+use App\Console\Command\AppTestCommand;
 use App\Controller\BaseController;
 use App\Db\Connection;
 use App\Db\Query\Core\Query;
@@ -22,7 +23,7 @@ class Services implements ConfigInterface
         }
 
         if (!array_key_exists($className, static::$definitions)) {
-            throw new \RuntimeException("The requested service %s is not defined for Container use.", $className);
+            throw new \RuntimeException(sprintf("The requested service %s is not defined for Container use.", $className));
         }
 
         return static::$definitions[$className];
@@ -39,6 +40,7 @@ class Services implements ConfigInterface
             FilesystemLoader::class => [Templating::get('loader_paths')],
             Connection::class => [Db::get()],
             Query::class => [Connection::class],
+            AppTestCommand::class => [],
         ];
     }
 }

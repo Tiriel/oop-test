@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Console\Command\Command;
 use App\Config\{Db, Routes, Services, SingletonInterface, Templating};
 use App\Controller\BaseController;
 use App\Http\{Request, RequestStack};
@@ -54,6 +55,19 @@ class Container
 
         return $this->services[$queryClass]
             ?? $this->services[$queryClass] = ClassBoundQuery::createClassQuery($this->get(Connection::class), $model);
+    }
+
+    public function getCommand(string $commandName): Command
+    {
+        $commandName = ucwords($commandName, ':');
+        $commandName = str_replace(':', '', $commandName);
+        $commandClass = 'App\\Console\\Command\\' . $commandName . 'Command';
+
+        if (!class_exists($commandClass)) {
+            throw new \InvalidArgumentException(sprintf("Command %s is not defined.", $commandName));
+        }
+
+        return $this->get($commandClass);
     }
 
     public static function create(): static
