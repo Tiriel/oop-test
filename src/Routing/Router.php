@@ -17,14 +17,18 @@ class Router
             if (!$this->match($request, $route)) {
                 continue;
             }
-            //if (!\in_array($request->getMethod(), $route->getMethods() ?? ['GET'])) {
-            //    return new Route('main_bad_method', '');
-            //}
+
+            if (!\in_array($request->getMethod(), $route->getMethods() ?? Request::METHODS)) {
+                return new Route('error_bad_method',
+                    $request->getMethod() . " - " . $request->getPath(),
+                    methods: $route->getMethods()
+                );
+            }
 
             return $route;
         }
 
-        return new Route('main_not_found', '');
+        return new Route('error_not_found', $request->getPath());
     }
 
     private function match(Request $request, Route $route): bool

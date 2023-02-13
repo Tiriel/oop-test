@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Config\Config;
+use App\Config\{Db, Routes, Services, SingletonInterface, Templating};
 use App\Controller\BaseController;
 use App\Http\{Request, RequestStack};
 use App\Db\{Connection, Query\Core\ClassBoundQuery, Query\Core\Query};
@@ -13,86 +13,51 @@ class Container
 {
     private iterable $services = [];
 
-    public function get(string $className): mixed
+    public function get(string $className, bool $argsOnly = false): mixed
     {
-        $service = $this->getServiceName($className);
+        $arguments = Services::get($className);
 
-        return $this->$service();
+        foreach ($arguments as $key => $service) {
+            if (is_string($service) && \class_exists($service)) {
+                $arguments[$key] = $this->get($service);
+            }
+        }
+
+        if ($argsOnly) {
+            return $arguments;
+        }
+
+        return $this->services[$className] ?? $this->services[$className] = new $className(...$arguments);
     }
 
     public function getController(string $controller): BaseController
     {
-        $controller = ucfirst($controller);
-        $controllerClass = 'App\\Controller\\' . $controller . 'Controller';
+        $controllerClass = 'App\\Controller\\' . ucfirst($controller) . 'Controller';
 
-        return $this->services[$controllerClass]
-            ?? $this->services[$controllerClass] = new $controllerClass($this->AppTemplatingTemplater(), $this->getQuery($controller));
+        if (array_key_exists($controllerClass, $this->services)) {
+            return $this->services[$controllerClass];
+        }
+
+        $arguments = $this->get(BaseController::class, true);
+        $arguments[array_search(Query::class, $arguments)+1] = $this->getQuery($controller);
+
+        return $this->services[$controllerClass] = new $controllerClass(...$arguments);
     }
 
     public function getQuery(string $model): Query
     {
-        $queryClass = 'App\\Db\\Query\\' . $model . 'Query';
+        $queryClass = 'App\\Db\\Query\\' . ucfirst($model) . 'Query';
+
+        if (!\class_exists($queryClass)) {
+            return $this->getQuery('post');
+        }
 
         return $this->services[$queryClass]
-            ?? $this->services[$queryClass] = ClassBoundQuery::createClassQuery($this->AppDbCoreConnection(), $model);
+            ?? $this->services[$queryClass] = ClassBoundQuery::createClassQuery($this->get(Connection::class), $model);
     }
 
     public static function create(): static
     {
         return new static();
-    }
-
-    private function getServiceName(string $className): string
-    {
-        return str_ireplace('\\', '', $className);
-    }
-
-    private function AppHttpRequestStack(): RequestStack
-    {
-        $name = $this->getServiceName(RequestStack::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = new RequestStack();
-    }
-
-    private function AppRoutingRouter(): Router
-    {
-        $name = $this->getServiceName(Router::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = new Router(Config::getRoutes());
-    }
-
-    private function AppRoutingUrlGenerator(): UrlGenerator
-    {
-        $name = $this->getServiceName(UrlGenerator::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = new UrlGenerator();
-    }
-
-    private function AppTemplatingTemplater(): Templater
-    {
-
-        $name = $this->getServiceName(Templater::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = new Templater(Config::getTemplateContext());
-    }
-
-    private function AppDbCoreConnection(): Connection
-    {
-        $name = $this->getServiceName(Connection::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = Connection::getConnection();
-    }
-
-    private function AppDbCoreQuery(): Query
-    {
-        $name = $this->getServiceName(Query::class);
-
-        return $this->services[$name]
-            ?? $this->services[$name] = new Query($this->AppDbCoreConnection());
     }
 }

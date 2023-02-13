@@ -10,11 +10,11 @@ class MainController extends BaseController
     {
         $lastPost = $this->query->findOneBy([], ['DESC', 'id']) ?? '';
 
-        return $this->render('main_index', ['post' => $lastPost]);
+        return $this->render('main/index.html.twig', ['post' => $lastPost]);
     }
 
     public function contact(): Response
     {
-        return $this->render('main_contact');
+        return $this->render('main/contact.html.twig');
     }
 }

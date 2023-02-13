@@ -2,8 +2,6 @@
 
 namespace App\Db;
 
-use App\Config\Config;
-
 class Connection
 {
 
@@ -12,9 +10,13 @@ class Connection
 
     public static Connection $_self;
 
-    private function __construct()
+    public function __construct(array $config)
     {
-        ['platform' => $platform, 'host' => $host, 'port' => $port, 'user' => $user, 'password' => $password, 'dbName' => $dbName] = Config::getDbConfig();
+        if (!array_key_exists('platform', $config)) {
+            throw new \InvalidArgumentException(sprintf("%s needs and array with proper platform information to work.", static::class));
+        }
+
+        ['platform' => $platform, 'host' => $host, 'port' => $port, 'user' => $user, 'password' => $password, 'dbName' => $dbName] = $config;
 
         $dsn = "$platform:host=$host;port=$port;dbname=$dbName";
         $options = [
@@ -41,9 +43,9 @@ class Connection
 
     private function __clone(): void {}
 
-    public static function getConnection(): Connection
+    public static function create(array $config = []): static
     {
-        return static::$_self ?? static::$_self = new static();
+        return static::$_self ?? static::$_self = new static($config);
     }
 
     public function isTransactional(): bool

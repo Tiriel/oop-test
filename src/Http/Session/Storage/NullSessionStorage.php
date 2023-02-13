@@ -6,15 +6,24 @@ use App\Http\Session\SessionBagInterface;
 
 class NullSessionStorage implements SessionStorageInterface
 {
+    /**
+     * @var SessionBagInterface[]
+     */
     private array $session = [];
+
+    private bool $started = false;
+
     public function start(): bool
     {
-        // TODO: Implement start() method.
+        $this->session = [];
+        $this->started = true;
+
+        return true;
     }
 
     public function isStarted(): bool
     {
-        // TODO: Implement isStarted() method.
+        return $this->started;
     }
 
     public function getId(): string

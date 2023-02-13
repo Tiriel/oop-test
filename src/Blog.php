@@ -2,11 +2,9 @@
 
 namespace App;
 
-use App\Http\Request;
-use App\Http\RequestStack;
-use App\Http\Response;
-use App\Routing\Route;
-use App\Routing\Router;
+use App\Http\Exception\{BadMethodHttpException,HttpException,NotFoundHttpException};
+use App\Http\{Response,Request,RequestStack};
+use App\Routing\{Route,Router};
 
 class Blog
 {
@@ -24,17 +22,22 @@ class Blog
 
         /** @var Route $route */
         $route = $router->route($request);
-        if ('' === $controller = $route->getController()) {
-            return match ($route->getName()) {
-                'main_not_found' => new Response('', 404),
-                'main_bad_method' => new Response('', 405),
-                default => new Response('', 500)
-            };
+        if ('error' === $controller = $route->getController()) {
+            $this->throwHttpException($route);
         }
 
         $controller = $this->container->getController($controller);
         $action = $route->getAction();
 
         return $controller->$action(...$request->getAttributes());
+    }
+
+    private function throwHttpException(Route $route): void
+    {
+        throw match ($route->getName()) {
+            'error_bad_method' => new BadMethodHttpException($route),
+            'error_not_found' => new NotFoundHttpException($route),
+            default => new HttpException()
+        };
     }
 }

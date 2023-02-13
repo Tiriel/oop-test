@@ -4,9 +4,9 @@ namespace App\Config;
 
 use App\Routing\Route;
 
-class Config
+class Routes implements ConfigInterface
 {
-    public static function getRoutes(): array
+    public static function get(): array
     {
         return [
             new Route(
@@ -31,25 +31,6 @@ class Config
                 '/posts/{slug}',
                 requirements: ['slug' => '\w+']
             ),
-        ];
-    }
-
-    public static function getTemplateContext(): array
-    {
-        return [
-            '_contextTitle' => 'Test OOP',
-        ];
-    }
-
-    public static function getDbConfig(): array
-    {
-        return [
-            'platform' => 'mysql',
-            'host' => '127.0.0.1',
-            'port' => '3306',
-            'user' => 'admin',
-            'password' => 'admin',
-            'dbName' => 'test_oop',
         ];
     }
 }
